@@ -23,11 +23,13 @@ class TonlibClient:
         self.keystore = keystore
         self.workchain_id = workchain_id
 
-    async def init_tonlib(self):
+    async def init_tonlib(self, cdll_path=None):
         if self.config.find('http://') == 0 or self.config.find('https://') == 0:
             self.config = httpx.get(self.config).json()
 
-        wrapper = TonLib(self.loop, self.ls_index)
+        print('saf11')
+        wrapper = TonLib(self.loop, self.ls_index, cdll_path=cdll_path)
+        print('saf22')
         if self.keystore:
             keystore_obj = {
                 '@type': 'keyStoreTypeDirectory',

@@ -5,19 +5,21 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="ton",
-    version="0.4",
+    version="0.5",
     author="psylopunk",
     author_email="psylopunk@protonmail.com",
     description="Python client for The Open Network",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/psylopunk/ton",
-    packages=setuptools.find_packages(),
+    packages=['ton'],
     install_requires=[
         'crc16==0.1.1',
         'poetry==1.1.13',
         'httpx==0.22.0',
-        'ujson==5.1.0'
+        'ujson==5.1.0',
+        'ed25519==1.5',
+        'mnemonic==0.20'
     ],
     package_data={
         'ton': [

@@ -15,7 +15,6 @@ def get_tonlib_path():
         lib_name = 'libtonlibjson.so'
     else:
         raise RuntimeError('Platform could not be identified')
-
     return pkg_resources.resource_filename(
         'ton', f'distlib/{arch_name}/{lib_name}'
     )
@@ -24,7 +23,9 @@ def get_tonlib_path():
 class TonLib:
     def __init__(self, loop, ls_index, cdll_path=None):
         cdll_path = get_tonlib_path() if not cdll_path else cdll_path
+        print('try init dll', cdll_path)
         tonlib = CDLL(cdll_path)
+        print('inited cdll')
 
         tonlib_json_client_create = tonlib.tonlib_client_json_create
         tonlib_json_client_create.restype = c_void_p
@@ -33,6 +34,7 @@ class TonLib:
             self._client = tonlib_json_client_create()
         except Exception:
             asyncio.ensure_future(self.restart_hook(), loop=loop)
+        print('created')
 
         tonlib_json_client_receive = tonlib.tonlib_client_json_receive
         tonlib_json_client_receive.restype = c_char_p
