@@ -25,8 +25,9 @@ class TonlibClient:
         self.workchain_id = workchain_id
 
     async def init_tonlib(self, cdll_path=None):
-        if self.config.find('http://') == 0 or self.config.find('https://') == 0:
-            self.config = httpx.get(self.config).json()
+        if type(self.config) == str:
+            if self.config.find('http://') == 0 or self.config.find('https://') == 0:
+                self.config = httpx.get(self.config).json()
 
         wrapper = TonLib(self.loop, self.ls_index, cdll_path=cdll_path)
         if self.keystore:
