@@ -79,7 +79,7 @@ class Wallet:
             if current_tx is None:
                 break
 
-            if current_tx.lt == 0:
+            if int(current_tx.lt) == 0:
                 break
 
         return all_transactions

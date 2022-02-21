@@ -117,7 +117,7 @@ class TonlibClient:
 
     async def reconnect(self):
         if not self.tonlib_wrapper.shutdown_state:
-            logger.info(f'Client #{self.number:03d} reconnecting')
+            logger.info(f'Client #{self.ls_index:03d} reconnecting')
             self.tonlib_wrapper.shutdown_state = "started"
             await self.init_tonlib()
-            logger.info(f'Client #{self.number:03d} reconnected')
+            logger.info(f'Client #{self.ls_index:03d} reconnected')
