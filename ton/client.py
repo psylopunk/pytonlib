@@ -27,9 +27,7 @@ class TonlibClient:
         if self.config.find('http://') == 0 or self.config.find('https://') == 0:
             self.config = httpx.get(self.config).json()
 
-        print('saf11')
         wrapper = TonLib(self.loop, self.ls_index, cdll_path=cdll_path)
-        print('saf22')
         if self.keystore:
             keystore_obj = {
                 '@type': 'keyStoreTypeDirectory',
