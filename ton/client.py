@@ -3,6 +3,7 @@ from .tl.types import Key, WalletV3InitialAccountState, AccountAddress
 from .tl.functions import CreateNewKey, GetAccountAddress, GetAccountState
 from .tonlibjson import TonLib
 from .models import Wallet
+from loguru import logger
 from typing import Union
 import ujson as json
 import httpx
@@ -38,6 +39,9 @@ class TonlibClient:
                 '@type': 'keyStoreTypeInMemory'
             }
 
+        self.config['liteservers'] = [
+            self.config['liteservers'][self.ls_index]
+        ]
         request = {
             '@type': 'init',
             'options': {
@@ -113,7 +117,7 @@ class TonlibClient:
 
     async def reconnect(self):
         if not self.tonlib_wrapper.shutdown_state:
-            # logger.info(f'Client #{self.number:03d} reconnecting')
+            logger.info(f'Client #{self.number:03d} reconnecting')
             self.tonlib_wrapper.shutdown_state = "started"
             await self.init_tonlib()
-            # logger.info(f'Client #{self.number:03d} reconnected')
+            logger.info(f'Client #{self.number:03d} reconnected')

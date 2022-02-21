@@ -1,5 +1,6 @@
 from .tl.base import TLObject
 from ctypes import *
+from loguru import logger
 import ujson as json
 import platform
 import pkg_resources
@@ -25,6 +26,7 @@ class TonLib:
         cdll_path = get_tonlib_path() if not cdll_path else cdll_path
 
         tonlib = CDLL(cdll_path)
+        logger.debug(f'Loaded CDLL {cdll_path}')
 
         tonlib_json_client_create = tonlib.tonlib_client_json_create
         tonlib_json_client_create.restype = c_void_p
@@ -102,11 +104,11 @@ class TonLib:
         return future_result
 
     async def execute(self, query, timeout=30):
-        # print(f'[TonLib] SEND' + '\n' + f'{query}')
+        logger.debug(f'[TonLib] SENT' + '\n' + f'{query}')
         if isinstance(query, TLObject): query = query.to_json()
         result = await self._execute(query, timeout=timeout)
         result = TLObject.from_json(result)
-        # print(f'[TonLib] RECEIVE' + '\n' + f'{result}')
+        logger.debug(f'[TonLib] RECEIVED' + '\n' + f'{result}')
         return result
 
     async def read_results(self):
@@ -118,10 +120,10 @@ class TonLib:
                 f = functools.partial(self.receive, timeout)
                 result = await asyncio.wait_for(self.loop.run_in_executor(None, f), timeout=timeout + delta)
             except asyncio.TimeoutError:
-                # logger.warning("Tonlib Stuck!")
+                logger.warning("Tonlib Stuck!")
                 asyncio.ensure_future(self.restart_hook(), loop=self.loop)
             except Exception as e:
-                # logger.warning("Tonlib crashed!")
+                logger.warning("Tonlib crashed!")
                 asyncio.ensure_future(self.restart_hook(), loop=self.loop)
             if result and isinstance(result, dict) and ("@extra" in result) and (result["@extra"] in self.futures):
                 try:
@@ -129,7 +131,7 @@ class TonLib:
                         self.futures[result["@extra"]].set_result(result)
                         self.futures.pop(result["@extra"])
                 except Exception as e:
-                    pass # logger.error(f'Tonlib receiving result exception: {e}')
+                    logger.error(f'Tonlib receiving result exception: {e}')
 
             if (not len(self.futures)) and (self.shutdown_state in ["started", "finished"]):
                 break

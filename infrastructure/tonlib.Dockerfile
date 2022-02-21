@@ -13,10 +13,10 @@ RUN git clone --recurse-submodules https://github.com/newton-blockchain/ton.git
 
 # fix lib version and patch logging
 WORKDIR /ton
-RUN git checkout 9875f02ef4ceba5b065d5e63c920f91aec73224e
-COPY infrastructure/tonlib.patch /ton/
-RUN git apply /ton/tonlib.patch
-RUN cat /ton/crypto/smc-envelope/SmartContract.h
+# RUN git checkout 9875f02ef4ceba5b065d5e63c920f91aec73224e
+# COPY infrastructure/tonlib.patch /ton/
+# RUN git apply /ton/tonlib.patch
+# RUN cat /ton/crypto/smc-envelope/SmartContract.h
 
 RUN mkdir /ton/build
 WORKDIR /ton/build

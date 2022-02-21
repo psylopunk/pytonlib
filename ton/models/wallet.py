@@ -29,6 +29,7 @@ class Wallet:
                         destination,
                         amount + 1000000,
                         data=MsgDataText(comment if not comment is None else ''),
+                        public_key=self.key.public_key,
                         send_mode=send_mode
                     )
                 ],
