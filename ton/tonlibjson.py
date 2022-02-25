@@ -98,7 +98,7 @@ class TonLib:
         self.loop.run_in_executor(None, lambda: self.send(query))
         future_result = self.loop.create_future()
         self.futures[extra_id] = future_result
-        self.request_num += 1
+        # self.request_num += 1
         if self.max_requests and self.max_requests < self.request_num:
             asyncio.ensure_future(self.restart_hook(), loop=self.loop)
         return future_result
