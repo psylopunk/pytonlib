@@ -1,6 +1,5 @@
 from .tl.base import TLObject
 from ctypes import *
-from loguru import logger
 import ujson as json
 import platform
 import pkg_resources
@@ -8,6 +7,7 @@ import random
 import asyncio
 import time
 import functools
+import logging
 
 
 def get_tonlib_path():
@@ -23,10 +23,14 @@ def get_tonlib_path():
 
 class TonLib:
     def __init__(self, loop, ls_index, cdll_path=None):
+        logging.basicConfig(level=logging.NOTSET, format='%(asctime)s | %(name)s | %(levelname)s | %(message)s')
+        self.logger = logging.getLogger('ton')
+        self.logger.disabled = True
+
         cdll_path = get_tonlib_path() if not cdll_path else cdll_path
 
         tonlib = CDLL(cdll_path)
-        logger.debug(f'Loaded CDLL {cdll_path}')
+        self.logger.debug(f'Loaded CDLL {cdll_path}')
 
         tonlib_json_client_create = tonlib.tonlib_client_json_create
         tonlib_json_client_create.restype = c_void_p
@@ -93,7 +97,7 @@ class TonLib:
         self.restart_hook = hook
 
     def _execute(self, query, timeout=30):
-        extra_id = "%s:%s:%s" % (time.time()+timeout, self.ls_index, random.random())
+        extra_id = "%s:%s:%s" % (time.time() + timeout, self.ls_index, random.random())
         query["@extra"] = extra_id
         self.loop.run_in_executor(None, lambda: self.send(query))
         future_result = self.loop.create_future()
@@ -101,14 +105,15 @@ class TonLib:
         # self.request_num += 1
         if self.max_requests and self.max_requests < self.request_num:
             asyncio.ensure_future(self.restart_hook(), loop=self.loop)
+
         return future_result
 
     async def execute(self, query, timeout=30):
-        logger.debug(f'[TonLib] SENT' + '\n' + f'{query}')
+        self.logger.debug(f'SENT' + '\n' + f'{query}')
         if isinstance(query, TLObject): query = query.to_json()
         result = await self._execute(query, timeout=timeout)
         result = TLObject.from_json(result)
-        logger.debug(f'[TonLib] RECEIVED' + '\n' + f'{result}')
+        self.logger.debug(f'RECEIVED' + '\n' + f'{result}')
         return result
 
     async def read_results(self):

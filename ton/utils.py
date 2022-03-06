@@ -26,6 +26,11 @@ def hex_to_b64str(x):
     return codecs.encode(codecs.decode(x, 'hex'), 'base64').decode().replace("\n", "")
 
 
+def from_nano(value):
+    return round(value / 10 ** 9, 9)
+
+def to_nano(value):
+    return value * (10 ** 9)
 
 def coro_result(coro):
     return asyncio.get_event_loop().run_until_complete(coro)

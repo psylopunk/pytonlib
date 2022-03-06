@@ -1,7 +1,8 @@
 from ..tl.types import AccountAddress, Key, InputKeyRegular, \
     WalletV3InitialAccountState, ActionMsg, MsgMessage, MsgDataText, \
     Internal_TransactionId
-from ..tl.functions import CreateQuery, QuerySend, GetAccountState, Raw_GetTransactions
+from ..tl.functions import CreateQuery, QuerySend, GetAccountState, Raw_GetTransactions, \
+    ExportKey
 from typing import Union
 import ujson as json
 
@@ -16,8 +17,12 @@ class Wallet:
         self.local_password = local_password
         self.client = client
 
-    async def transfer(self, destination, amount, comment=None, allow_send_to_uninited=False, send_mode: int=0, timeout: int=300):
+    async def transfer(self, destination, amount, comment=None, allow_send_to_uninited=False, send_mode: int=1, timeout: int=300):
         if self.key is None: raise Exception('PrivateKey is empty')
+
+        balance = await self.get_balance()
+        if balance < amount + 50000000:
+            raise Exception('Insufficient funds')
 
         query = CreateQuery(
             InputKeyRegular(self.key, local_password=self.local_password),
@@ -27,7 +32,7 @@ class Wallet:
                 [
                     MsgMessage(
                         destination,
-                        amount + 1000000,
+                        amount,
                         data=MsgDataText(comment if not comment is None else ''),
                         public_key=self.key.public_key,
                         send_mode=send_mode
@@ -38,10 +43,11 @@ class Wallet:
             timeout=timeout
         )
 
-        r = await self.client.tonlib_wrapper.execute(query)
-        query = QuerySend(r.id)
-        r = await self.client.tonlib_wrapper.execute(query)
-        return r
+        return await self.client.tonlib_wrapper.execute(
+            QuerySend(
+                (await self.client.execute(query)).id
+            )
+        )
 
     async def get_state(self):
         return await self.client.tonlib_wrapper.execute(
@@ -84,7 +90,16 @@ class Wallet:
 
         return all_transactions
 
-    def export_key(self):
+    def export(self):
         if self.key is None: raise Exception('PrivateKey is empty')
 
         return json.dumps(self.key.to_json())
+
+    async def export_key(self):
+        if self.key is None: raise Exception('PrivateKey is empty')
+
+        return await self.client.execute(
+            ExportKey(
+                InputKeyRegular(self.key, local_password=self.local_password)
+            )
+        )

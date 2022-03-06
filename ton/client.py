@@ -3,7 +3,6 @@ from .tl.types import Key, WalletV3InitialAccountState, AccountAddress
 from .tl.functions import CreateNewKey, GetAccountAddress, GetAccountState
 from .tonlibjson import TonLib
 from .models import Wallet
-from loguru import logger
 from typing import Union
 import ujson as json
 import httpx
@@ -72,7 +71,11 @@ class TonlibClient:
         return await self.tonlib_wrapper.execute(request)
 
     async def execute(self, query, timeout=30):
-        return await self.tonlib_wrapper.execute(query, timeout=timeout)
+        result = await self.tonlib_wrapper.execute(query, timeout=timeout)
+        if result.type == 'error':
+            raise Exception(result.message)
+
+        return result
 
     async def create_new_key(self, mnemonic, random_extra_seed=None, local_password=None):
         query = CreateNewKey(
@@ -118,6 +121,7 @@ class TonlibClient:
 
     async def reconnect(self):
         if not self.tonlib_wrapper.shutdown_state:
+            logger = self.tonlib_wrapper.logger
             logger.info(f'Client #{self.ls_index:03d} reconnecting')
             self.tonlib_wrapper.shutdown_state = "started"
             await self.init_tonlib()

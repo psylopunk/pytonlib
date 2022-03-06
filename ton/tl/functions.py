@@ -52,3 +52,8 @@ class Raw_GetTransactions(TLObject):
         self.type = 'raw.getTransactions'
         self.account_address = account_address
         self.from_transaction_id = from_transaction_id
+
+class ExportKey(TLObject):
+    def __init__(self, input_key: InputKeyRegular):
+        self.type = 'exportKey'
+        self.input_key = input_key
