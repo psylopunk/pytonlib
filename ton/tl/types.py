@@ -74,3 +74,8 @@ class Internal_TransactionId(TLObject):
         self.type = 'internal.transactionId'
         self.lt = int(lt)
         self.hash = hash
+
+class ExportedKey(TLObject):
+    def __init__(self, word_list: list):
+        self.type = 'exportedKey'
+        self.word_list = word_list

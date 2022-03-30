@@ -4,6 +4,7 @@ from .tl.functions import CreateNewKey, GetAccountAddress, GetAccountState
 from .tonlibjson import TonLib
 from .models import Wallet
 from typing import Union
+import asyncio
 import ujson as json
 import httpx
 
@@ -15,13 +16,19 @@ class TonlibClient:
             ls_index=0,
             config='https://newton-blockchain.github.io/global.config.json',
             keystore=None,
-            workchain_id=0
+            workchain_id=0,
+            verbosity_level=0
     ):
         self.loop = loop
         self.ls_index = ls_index
         self.config = config
         self.keystore = keystore
         self.workchain_id = workchain_id
+        self.verbosity_level = 0
+
+        self.queue = []
+        self.lock = asyncio.Lock()
+        self.locked = False
 
     async def init_tonlib(self, cdll_path=None):
         if type(self.config) == str:
@@ -60,7 +67,7 @@ class TonlibClient:
         r = await wrapper.execute(request)
         wrapper.set_restart_hook(hook=self.reconnect, max_requests=500)
         self.tonlib_wrapper = wrapper
-        await self.set_verbosity_level(0)
+        await self.set_verbosity_level(self.verbosity_level)
         self.config_info = r.config_info
 
     async def set_verbosity_level(self, level):
@@ -70,8 +77,29 @@ class TonlibClient:
         }
         return await self.tonlib_wrapper.execute(request)
 
-    async def execute(self, query, timeout=30):
+    async def _execute(self, query, timeout=30):
+        if self.locked: return None
+        self.locked = True
+        self.lock.release()
+
         result = await self.tonlib_wrapper.execute(query, timeout=timeout)
+        async with self.lock:
+            self.locked = False
+
+        return result
+
+    async def execute(self, query, timeout=30):
+        while True:
+            if self.locked:
+                await asyncio.sleep(0.3)
+            else:
+                if self.lock.locked():
+                    self.lock.release()
+
+                break
+
+        await self.lock.acquire()
+        result = await self._execute(query, timeout=timeout)
         if result.type == 'error':
             raise Exception(result.message)
 

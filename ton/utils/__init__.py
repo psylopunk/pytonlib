@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from .address import *
 import codecs
 import base64
 import asyncio
@@ -30,7 +31,7 @@ def from_nano(value):
     return round(value / 10 ** 9, 9)
 
 def to_nano(value):
-    return value * (10 ** 9)
+    return int(value * (10 ** 9))
 
 def coro_result(coro):
     return asyncio.get_event_loop().run_until_complete(coro)

@@ -114,6 +114,10 @@ class TonLib:
         result = await self._execute(query, timeout=timeout)
         result = TLObject.from_json(result)
         self.logger.debug(f'RECEIVED' + '\n' + f'{result}')
+        if result.type == 'updateSyncState':
+            await asyncio.sleep(1)
+            return await self.execute(query, timeout=timeout)
+
         return result
 
     async def read_results(self):

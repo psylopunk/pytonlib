@@ -7,6 +7,9 @@ from typing import Union
 import ujson as json
 
 class Wallet:
+    def __repr__(self):
+        return f"Wallet<{self.account_address.account_address}>"
+
     def __init__(self, account_address: Union[AccountAddress, str], key: Key=None, local_password: str=None, client=None):
         if client is None: raise Exception('Client is not connected')
         if type(account_address) == str:
@@ -42,12 +45,12 @@ class Wallet:
             ),
             timeout=timeout
         )
-
-        return await self.client.tonlib_wrapper.execute(
-            QuerySend(
-                (await self.client.execute(query)).id
-            )
+        print(query)
+        query_id = (await self.client.execute(query)).id
+        result = await self.client.execute(
+            QuerySend(query_id)
         )
+        return result
 
     async def get_state(self):
         return await self.client.tonlib_wrapper.execute(

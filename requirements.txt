@@ -4,4 +4,3 @@ httpx==0.22.0
 ujson==5.1.0
 ed25519==1.5
 mnemonic==0.20
-loguru==0.6.0
