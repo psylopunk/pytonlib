@@ -1,32 +1,12 @@
-from ..tl.types import AccountAddress, Key, InputKeyRegular, \
-    WalletV3InitialAccountState, ActionMsg, MsgMessage, MsgDataText, \
-    Internal_TransactionId
-from ..tl.functions import CreateQuery, QuerySend, GetAccountState, Raw_GetTransactions, \
-    ExportKey
-from typing import Union
-import ujson as json
+from ..tl.types import InputKeyRegular, WalletV3InitialAccountState, ActionMsg, \
+    MsgMessage, MsgDataText
+from ..tl.functions import CreateQuery, QuerySend, ExportKey
+from .contract import Contract
 
-class Wallet:
-    def __repr__(self):
-        return f"Wallet<{self.account_address.account_address}>"
-
-    def __init__(self, account_address: Union[AccountAddress, str], key: Key=None, local_password: str=None, client=None):
-        if client is None: raise Exception('Client is not connected')
-        if type(account_address) == str:
-            account_address = AccountAddress(account_address)
-
-        self.account_address = account_address
-        self.key = key
-        self.local_password = local_password
-        self.client = client
+class Wallet(Contract):
+    def __repr__(self): return f"Wallet<{self.account_address.account_address}>"
 
     async def transfer(self, destination, amount, comment=None, allow_send_to_uninited=False, send_mode: int=1, timeout: int=300):
-        if self.key is None: raise Exception('PrivateKey is empty')
-
-        balance = await self.get_balance()
-        if balance < amount + 50000000:
-            raise Exception('Insufficient funds')
-
         query = CreateQuery(
             InputKeyRegular(self.key, local_password=self.local_password),
             WalletV3InitialAccountState(self.key, self.client.config_info.default_wallet_id),
@@ -45,62 +25,18 @@ class Wallet:
             ),
             timeout=timeout
         )
-        print(query)
         query_id = (await self.client.execute(query)).id
-        result = await self.client.execute(
-            QuerySend(query_id)
-        )
+        result = await self.client.execute(QuerySend(query_id))
         return result
 
-    async def get_state(self):
-        return await self.client.tonlib_wrapper.execute(
-            GetAccountState(self.account_address)
-        )
+    @property
+    def path(self):
+        """
+        :return: path (str)
+        """
+        return ''.join([self.key.public_key, self.key.secret])
 
-    async def get_balance(self):
-        return int((await self.get_state()).balance)
-
-    async def get_transactions(self, from_transaction_lt=None, from_transaction_hash=None, to_transaction_lt=0, limit=10):
-        if from_transaction_lt == None or from_transaction_hash == None:
-            state = await self.get_state()
-            from_transaction_lt, from_transaction_hash = state.last_transaction_id.lt, state.last_transaction_id.hash
-
-        reach_lt = False
-        all_transactions = []
-        current_tx = Internal_TransactionId(
-            from_transaction_lt, from_transaction_hash
-        )
-        while not reach_lt and len(all_transactions) < limit:
-            raw_transactions = await self.client.tonlib_wrapper.execute(
-                Raw_GetTransactions(
-                    self.account_address,
-                    current_tx
-                )
-            )
-            transactions, current_tx = raw_transactions.transactions, raw_transactions.__dict__.get("previous_transaction_id", None)
-            for tx in transactions:
-                tlt = int(tx.transaction_id.lt)
-                if tlt <= to_transaction_lt:
-                    reach_lt = True
-                    break
-                all_transactions.append(tx)
-
-            if current_tx is None:
-                break
-
-            if int(current_tx.lt) == 0:
-                break
-
-        return all_transactions
-
-    def export(self):
-        if self.key is None: raise Exception('PrivateKey is empty')
-
-        return json.dumps(self.key.to_json())
-
-    async def export_key(self):
-        if self.key is None: raise Exception('PrivateKey is empty')
-
+    async def export(self):
         return await self.client.execute(
             ExportKey(
                 InputKeyRegular(self.key, local_password=self.local_password)

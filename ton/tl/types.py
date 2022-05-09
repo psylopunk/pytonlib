@@ -1,5 +1,5 @@
 from .base import TLObject
-from ..utils import str_b64encode
+from ..utils.base import str_b64encode
 from typing import Union
 
 class Key(TLObject):

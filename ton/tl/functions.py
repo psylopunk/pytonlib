@@ -1,7 +1,7 @@
 from .base import TLObject
 from .types import InputKeyRegular, AccountAddress, ActionMsg, WalletV3InitialAccountState, \
     Internal_TransactionId
-from ..utils import str_b64encode
+from ..utils.base import str_b64encode
 from typing import Union
 
 class CreateNewKey(TLObject):
@@ -17,6 +17,14 @@ class GetAccountAddress(TLObject):
         self.initial_account_state = initial_account_state
         self.revision = revision
         self.workchain_id = workchain_id
+
+class Raw_GetAccountState(TLObject):
+    def __init__(self, account_address: Union[AccountAddress, str]):
+        if type(account_address) == str:
+            account_address = AccountAddress(account_address)
+
+        self.type = 'raw.getAccountState'
+        self.account_address = account_address
 
 class GetAccountState(TLObject):
     def __init__(self, account_address: Union[AccountAddress, str]):
@@ -34,7 +42,7 @@ class CreateQuery(TLObject):
             address: AccountAddress,
             action: Union[ActionMsg],
             timeout: int = 300
-    ):
+    ) -> object:
         self.type = 'createQuery'
         self.private_key = private_key
         self.initial_account_state = initial_account_state
