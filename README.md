@@ -7,8 +7,13 @@ Install TON using pip:
 ```
 $ pip install ton
 ```
+  or (if error with illegal instructions):
+```
+$ git clone https://github.com/psylopunk/ton && cd ton
+$ chmod +x build_tonlib.sh && ./build_tonlib.sh # docker is needed
+```
 
-Now, let's get started:
+### Now, let's get started:
 
 ```python
 >>> from ton.sync import TonlibClient
