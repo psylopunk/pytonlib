@@ -18,12 +18,19 @@ Now, let's get started:
 >>> client.init_tonlib()
 >>> 
 >>> # Wallet generation
->>> key = client.create_wallet()
->>> wallet = client.init_wallet(key)
+>>> wallet = client.create_wallet()
+>>> wallet
+Wallet<EQCi-D5OSmueD61_ZCw7D_tcMMjB8E5e5AECZT7lCM2Gm6O1>
+>>>
+>>> # Get a word list
 >>> seed = wallet.export()
 >>>
 >>> # Importing wallet
->>> wallet = client.import_wallet(seed) 
+>>> wallet = client.import_wallet(seed)
+>>>
+>>> # Get saved wallet from Keystore
+>>> path = wallet.path
+>>> wallet = client.find_wallet(path)
 >>>
 >>> # Getting an address
 >>> wallet.account_address.account_address
