@@ -12,19 +12,25 @@ Now, let's get started:
 
 ```python
 >>> from ton.sync import TonlibClient
->>> import asyncio
-
+>>>
 >>> # Initiate module
->>> client = TonlibClient(asyncio.get_event_loop(), keystore='/Keystore')
+>>> client = TonlibClient()
 >>> client.init_tonlib()
 >>> 
->>> # Creating a wallet passphrase
->>> from mnemonic import Mnemonic
->>> seed = Mnemonic('english').generate(256)
->>> 
 >>> # Wallet generation
->>> key = client.create_new_key(seed.split(' '))
->>> wallet = client.init_wallet(key)
+>>> wallet = client.create_wallet()
+>>> wallet
+Wallet<EQCi-D5OSmueD61_ZCw7D_tcMMjB8E5e5AECZT7lCM2Gm6O1>
+>>>
+>>> # Get a word list
+>>> seed = wallet.export()
+>>>
+>>> # Importing wallet
+>>> wallet = client.import_wallet(seed)
+>>>
+>>> # Get saved wallet from Keystore
+>>> path = wallet.path
+>>> wallet = client.find_wallet(path)
 >>>
 >>> # Getting an address
 >>> wallet.account_address.account_address
