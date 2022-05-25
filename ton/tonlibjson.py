@@ -129,10 +129,10 @@ class TonLib:
                 f = functools.partial(self.receive, timeout)
                 result = await asyncio.wait_for(self.loop.run_in_executor(None, f), timeout=timeout + delta)
             except asyncio.TimeoutError:
-                logger.warning("Tonlib Stuck!")
+                self.logger.warning("Tonlib Stuck!")
                 asyncio.ensure_future(self.restart_hook(), loop=self.loop)
             except Exception as e:
-                logger.warning("Tonlib crashed!")
+                self.logger.warning("Tonlib crashed!")
                 asyncio.ensure_future(self.restart_hook(), loop=self.loop)
             if result and isinstance(result, dict) and ("@extra" in result) and (result["@extra"] in self.futures):
                 try:
@@ -140,7 +140,7 @@ class TonLib:
                         self.futures[result["@extra"]].set_result(result)
                         self.futures.pop(result["@extra"])
                 except Exception as e:
-                    logger.error(f'Tonlib receiving result exception: {e}')
+                    self.logger.error(f'Tonlib receiving result exception: {e}')
 
             if (not len(self.futures)) and (self.shutdown_state in ["started", "finished"]):
                 break

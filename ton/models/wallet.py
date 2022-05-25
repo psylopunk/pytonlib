@@ -1,9 +1,9 @@
 from ..tl.types import InputKeyRegular, WalletV3InitialAccountState, ActionMsg, \
     MsgMessage, MsgDataText
 from ..tl.functions import CreateQuery, QuerySend, ExportKey
-from .contract import Contract
+from .account import Account
 
-class Wallet(Contract):
+class Wallet(Account):
     def __repr__(self): return f"Wallet<{self.account_address.account_address}>"
 
     async def transfer(self, destination, amount, comment=None, allow_send_to_uninited=False, send_mode: int=1, timeout: int=300):
@@ -37,8 +37,8 @@ class Wallet(Contract):
         return ''.join([self.key.public_key, self.key.secret])
 
     async def export(self):
-        return await self.client.execute(
+        return ' '.join((await self.client.execute(
             ExportKey(
                 InputKeyRegular(self.key, local_password=self.local_password)
             )
-        )
+        )).word_list)

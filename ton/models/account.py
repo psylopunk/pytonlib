@@ -1,10 +1,10 @@
 from ..tl.types import AccountAddress, Internal_TransactionId
-from ..tl.functions import Raw_GetAccountState, GetAccountState, Raw_GetTransactions
+from ..tl.functions import Raw_GetAccountState, Raw_GetTransactions
 from ..utils import KNOWN_CONTRACT_TYPES
 from ..errors import InvalidUsage
 
-class Contract:
-    def __repr__(self): return f"Contract<{self.account_address.account_address}>"
+class Account:
+    def __repr__(self): return f"Account<{self.account_address.account_address}>"
 
     def __init__(self, address, key=None, local_password=None, client=None):
         if isinstance(address, AccountAddress):
@@ -17,22 +17,35 @@ class Contract:
         self.key = key
         self.local_password = local_password
         self.client = client
+        self.state = None
 
-    async def get_state(self, raw=False):
-        return await self.client.tonlib_wrapper.execute(
-            Raw_GetAccountState(self.account_address) if raw is True else GetAccountState(self.account_address)
+    async def load_state(self):
+        self.state = await self.client.tonlib_wrapper.execute(
+            Raw_GetAccountState(self.account_address)
         )
 
+    async def get_state(self, force=False):
+        if self.state is None or force:
+            await self.load_state()
+
+        return self.state
+
+    # TODO: remove in next version
     async def find_type(self):
-        state = await self.get_state(raw=True)
+        raise Exception('Account.find_type is deprecated, try Account.detect_type instead')
+
+    async def detect_type(self):
+        state = await self.get_state()
         return KNOWN_CONTRACT_TYPES.get(state.code, None)
 
     async def get_balance(self):
-        return int((await self.get_state()).balance) # in nanocoins
+        return int(
+            (await self.get_state(force=True)).balance # in nanocoins
+        )
 
     async def get_transactions(self, from_transaction_lt=None, from_transaction_hash=None, to_transaction_lt=0, limit=10):
         if from_transaction_lt == None or from_transaction_hash == None:
-            state = await self.get_state()
+            state = await self.get_state(force=True)
             from_transaction_lt, from_transaction_hash = state.last_transaction_id.lt, state.last_transaction_id.hash
 
         reach_lt = False

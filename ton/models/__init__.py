@@ -1,1 +1,1 @@
-from .wallet import Wallet, Contract
+from .wallet import Wallet, Account

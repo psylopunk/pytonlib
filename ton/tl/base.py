@@ -13,7 +13,7 @@ class TLObject:
     def to_json(self):
         _values = {}
         for key in self.__dict__:
-            if key == 'type':
+            if key in ['type', 'extra']:
                 continue
             elif type(self.__dict__[key]) == list:
                 _values[key] = []
