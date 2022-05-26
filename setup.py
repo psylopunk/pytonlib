@@ -17,7 +17,7 @@ setuptools.setup(
         'crc16==0.1.1',
         'poetry==1.1.13',
         'httpx==0.22.0',
-        'ujson==5.1.0',
+        'ujson==5.2.0',
         'ed25519==1.5'
     ],
     package_data={
