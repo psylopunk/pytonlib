@@ -63,6 +63,9 @@ EQCi-D5OSmueD61_ZCw7D_tcMMjB8E5e5AECZT7lCM2Gm6O1
     "@type": "ok",
     "@extra": "1648032761.9897776:0:0.6654941473285754"
 }
+>>> # View account
+>>> account = await client.find_account('EQBPhcJanCxCYc-eiSxUVcm7I4-PfHODzBNhY1Cd3R5IP041')
+>>> txs = await account.get_transactions()
 ```
 
 ### Documentation <a href="#documentation" id="documentation"></a>
