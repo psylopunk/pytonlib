@@ -71,7 +71,7 @@ To get acquainted with all the basics, go to [Developer Interface](developer-int
 
 ### Troubleshooting
 
-Read more about this in [Troubleshooting](./#undefined)
+Read more about this in [Troubleshooting](troubleshooting.md)
 
 ### Dependencies <a href="#dependencies" id="dependencies"></a>
 
