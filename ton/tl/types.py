@@ -1,5 +1,5 @@
 from .base import TLObject
-from ..utils.base import str_b64encode
+from ..utils.base import str_b64encode, bytes_b64encode
 from typing import Union
 
 class Key(TLObject):
@@ -38,6 +38,12 @@ class MsgDataText(TLObject):
     def __init__(self, text: str):
         self.type = 'msg.dataText'
         self.text = str_b64encode(text)
+
+class MsgDataRaw(TLObject):
+    def __init__(self, body: bytes, init_state: bytes=None):
+        self.type = 'msg.dataRaw'
+        self.body = bytes_b64encode(body)
+        self.init_state = bytes_b64encode(init_state)
 
 class MsgMessage(TLObject):
     def __init__(

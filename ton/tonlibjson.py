@@ -15,7 +15,8 @@ def get_tonlib_path():
     if arch_name == 'linux':
         lib_name = 'libtonlibjson.so'
     else:
-        raise RuntimeError('Platform could not be identified')
+        raise RuntimeError('Platform could not be identified. Read more at https://github.com/psylopunk/ton/issues/7')
+
     return pkg_resources.resource_filename(
         'ton', f'distlib/{arch_name}/{lib_name}'
     )

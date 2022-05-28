@@ -76,4 +76,4 @@ class ImportKey(TLObject):
 class SetLogVerbosityLevel(TLObject):
     def __init__(self, level: int):
         self.type = 'setLogVerbosityLevel'
-        self.level = level
+        self.new_verbosity_level = level

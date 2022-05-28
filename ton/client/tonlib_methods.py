@@ -1,7 +1,7 @@
 from ..tonlibjson import TonLib
 import ujson as json
 import asyncio
-import httpx
+import requests
 
 class TonlibMethods:
     async def _execute(self, query, timeout=30):
@@ -43,7 +43,7 @@ class TonlibMethods:
     async def init_tonlib(self, cdll_path=None):
         if type(self.config) == str:
             if self.config.find('http://') == 0 or self.config.find('https://') == 0:
-                self.config = httpx.get(self.config).json()
+                self.config = requests.get(self.config).json()
 
         wrapper = TonLib(self.loop, self.ls_index, cdll_path=cdll_path)
         if self.keystore:

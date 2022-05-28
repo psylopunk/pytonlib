@@ -24,3 +24,6 @@ KNOWN_CONTRACT_TYPES = {
 
 def str_b64encode(s):
     return b64encode(s.encode('utf-8')).decode('utf-8') if s and isinstance(s, str) else None
+
+def bytes_b64encode(s):
+    return None if s is None else b64encode(s).decode('utf-8')

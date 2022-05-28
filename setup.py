@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="ton",
-    version="0.15",
+    version="0.16",
     author="psylopunk",
     author_email="psylopunk@protonmail.com",
     description="Python client for The Open Network",
@@ -16,9 +16,9 @@ setuptools.setup(
     install_requires=[
         'crc16==0.1.1',
         'poetry==1.1.13',
-        'httpx==0.22.0',
         'ujson==5.2.0',
-        'ed25519==1.5'
+        'ed25519==1.5',
+        'requests==2.27.1'
     ],
     package_data={
         'ton': [
