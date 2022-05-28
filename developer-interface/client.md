@@ -14,7 +14,7 @@ _class_ `ton.TonlibClient`_(ls\_index: int=0, config='https://newton-blockchain.
 > \
 > **Parameters:**
 >
-> * **keystore** - (optional) Directory with keys, need 777 rights. Default is `.keystore`
-> * **ls\_index** - (optional) Light server index
-> * **config** - (optional) File or URL with the TON config
-> * **work**_**chain\_id** - (optional) Workchain ID_
+> * **keystore** - (str, optional) Directory with keys, need 777 rights. Default is `.keystore`
+> * **ls\_index** - (int, optional) Light server index
+> * **config** - (str, optional) File or URL with the TON config
+> * **work**_**chain\_id** - (int, optional) Workchain ID_
