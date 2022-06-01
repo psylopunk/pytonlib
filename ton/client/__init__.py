@@ -13,7 +13,7 @@ class TonlibClient(TonlibMethods, WalletMethods, FunctionMethods):
     def __init__(
             self,
             ls_index=0,
-            config='https://newton-blockchain.github.io/global.config.json',
+            config='https://ton-blockchain.github.io/global.config.json',
             keystore=None,
             workchain_id=0,
             verbosity_level=0

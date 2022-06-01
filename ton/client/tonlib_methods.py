@@ -3,6 +3,7 @@ import ujson as json
 import asyncio
 import requests
 
+
 class TonlibMethods:
     async def _execute(self, query, timeout=30):
         if self.locked: return None
@@ -45,7 +46,9 @@ class TonlibMethods:
             if self.config.find('http://') == 0 or self.config.find('https://') == 0:
                 self.config = requests.get(self.config).json()
 
-        wrapper = TonLib(self.loop, self.ls_index, cdll_path=cdll_path)
+        self.tonlib_wrapper = TonLib(self.loop, self.ls_index, cdll_path=cdll_path)
+        await self.set_verbosity_level(self.verbosity_level)
+        
         if self.keystore:
             keystore_obj = {
                 '@type': 'keyStoreTypeDirectory',
@@ -74,10 +77,8 @@ class TonlibMethods:
             }
         }
 
-        r = await wrapper.execute(request)
-        wrapper.set_restart_hook(hook=self.reconnect, max_requests=500)
-        self.tonlib_wrapper = wrapper
-        await self.set_verbosity_level(self.verbosity_level)
+        r = await self.tonlib_wrapper.execute(request)
+        self.tonlib_wrapper.set_restart_hook(hook=self.reconnect, max_requests=500)
         self.config_info = r.config_info
 
     async def reconnect(self):
