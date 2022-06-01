@@ -12,14 +12,16 @@ import logging
 
 def get_tonlib_path():
     arch_name = platform.system().lower()
+    machine = platform.machine().lower()
     if arch_name == 'linux':
-        lib_name = 'libtonlibjson.so'
+        lib_name = f'libtonlibjson.{machine}.so'
+    elif arch_name == 'darwin':
+        lib_name = f'libtonlibjson.{machine}.dylib'
+    elif arch_name == 'windows':
+        lib_name = f'tonlibjson.{machine}.dll'
     else:
-        raise RuntimeError('Platform could not be identified. Read more at https://github.com/psylopunk/ton/issues/7')
-
-    return pkg_resources.resource_filename(
-        'ton', f'distlib/{arch_name}/{lib_name}'
-    )
+        raise RuntimeError(f"Platform '{arch_name}({machine})' is not compatible yet. Read more at https://github.com/psylopunk/ton/issues/7")
+    return pkg_resources.resource_filename('ton', f'distlib/{arch_name}/{lib_name}')
 
 
 class TonLib:
