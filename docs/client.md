@@ -15,7 +15,7 @@ class ton.TonlibClient(keystore=None,
 * **keystore** -- (str, optional) Directory where keys (will be) stored, need 777 rights. Default is `.keystore`.
 * **config** -- (str, optional) File or URL with the TON config.
 * **ls\_index** -- (int, optional) Light server index. Like config modes. More [here](https://github.com/ton-blockchain/ton/blob/master/lite-client/lite-client.cpp#L329).
-* **work**_**chain\_id** -- (int, optional) Workchain ID_
+* **work**_**chain\_id** -- (int, optional) Workchain ID. With this parameter, you can work, for example, in the masterchain by specifying -1 or in the workchain by specifying 0. No one really knows how this parameter will be used in the future, but it is there.
 
 </br>
 
