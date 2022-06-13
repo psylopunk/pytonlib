@@ -2,7 +2,7 @@
 
 This library is built entirely according to the standards of the selected language in order to admire the functionality.
 
-[![PyPI version](https://badge.fury.io/py/ton.svg)](https://badge.fury.io/py/ton)
+[![PyPI version](https://badge.fury.io/py/ton.svg)](https://badge.fury.io/py/ton) ![visitors](https://visitor-badge.glitch.me/badge?page_id=psylopunk.pytonlib.readme&left_color=gray&right_color=red)
 
 Install TON using pip:
 
