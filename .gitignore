@@ -120,3 +120,4 @@ venv.bak/
 .vscode/
 .idea/
 .keystore/
+vim.session
