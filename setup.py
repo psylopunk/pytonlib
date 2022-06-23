@@ -14,12 +14,12 @@ setuptools.setup(
     url="https://github.com/psylopunk/pytonlib",
     packages=setuptools.find_packages(),
     install_requires=[
-        'crc16==0.1.1',
-        'poetry==1.1.13',
-        'ujson==5.2.0',
-        'ed25519==1.5',
-        'requests==2.27.1',
-        'tvm_valuetypes==0.0.9'
+        'crc16>=0.1.1',
+        'poetry>=1.1.13',
+        'ujson>=5.2.0',
+        'ed25519>=1.5',
+        'requests>=2.27.1',
+        'tvm_valuetypes>=0.0.9'
     ],
     package_data={
         'ton': [
