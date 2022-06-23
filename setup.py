@@ -11,7 +11,7 @@ setuptools.setup(
     description="Python client for The Open Network",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/psylopunk/ton",
+    url="https://github.com/psylopunk/pytonlib",
     packages=setuptools.find_packages(),
     install_requires=[
         'crc16==0.1.1',
