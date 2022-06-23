@@ -3,7 +3,7 @@ import functools
 import inspect
 
 from .client import TonlibClient
-from .models import Wallet, Account
+from .account import Account
 
 def _syncify_wrap(t, method_name):
     method = getattr(t, method_name)
@@ -38,8 +38,8 @@ def syncify(*types):
                     _syncify_wrap(t, name)
 
 
-syncify(TonlibClient, Wallet, Account)
+syncify(TonlibClient, Account)
 
 __all__ = [
-    'TonlibClient', 'Wallet', 'Account'
+    'TonlibClient', 'Account'
 ]

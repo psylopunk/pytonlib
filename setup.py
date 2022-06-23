@@ -18,7 +18,8 @@ setuptools.setup(
         'poetry==1.1.13',
         'ujson==5.2.0',
         'ed25519==1.5',
-        'requests==2.27.1'
+        'requests==2.27.1',
+        'tvm_valuetypes==0.0.9'
     ],
     package_data={
         'ton': [

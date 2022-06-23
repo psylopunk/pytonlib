@@ -1,24 +1,8 @@
-from ..tl.types import AccountAddress, Internal_TransactionId
 from ..tl.functions import Raw_GetAccountState, Raw_GetTransactions
+from ..tl.types import Internal_TransactionId
 from ..utils import KNOWN_CONTRACT_TYPES
-from ..errors import InvalidUsage
 
-class Account:
-    def __repr__(self): return f"Account<{self.account_address.account_address}>"
-
-    def __init__(self, address, key=None, local_password=None, client=None):
-        if isinstance(address, AccountAddress):
-            self.account_address = self.account_address
-        elif isinstance(address, str):
-            self.account_address = AccountAddress(address)
-        else:
-            raise InvalidUsage('Specify the account address')
-
-        self.key = key
-        self.local_password = local_password
-        self.client = client
-        self.state = None
-
+class StateMethods:
     async def load_state(self):
         self.state = await self.client.tonlib_wrapper.execute(
             Raw_GetAccountState(self.account_address)
@@ -29,10 +13,6 @@ class Account:
             await self.load_state()
 
         return self.state
-
-    # TODO: remove in next version
-    async def find_type(self):
-        raise Exception('Account.find_type is deprecated, try Account.detect_type instead')
 
     async def detect_type(self):
         state = await self.get_state()
@@ -75,3 +55,7 @@ class Account:
                 break
 
         return all_transactions
+
+    # TODO: remove in next version
+    async def find_type(self):
+        raise Exception('Account.find_type is deprecated, try Account.detect_type instead')

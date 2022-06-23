@@ -1,8 +1,6 @@
 from .tl.base import TLObject
 from ctypes import *
 import ujson as json
-import platform
-import pkg_resources
 import random
 import asyncio
 import time
@@ -10,27 +8,11 @@ import functools
 import logging
 
 
-def get_tonlib_path():
-    arch_name = platform.system().lower()
-    machine = platform.machine().lower()
-    if arch_name == 'linux':
-        lib_name = f'libtonlibjson.{machine}.so'
-    elif arch_name == 'darwin':
-        lib_name = f'libtonlibjson.{machine}.dylib'
-    elif arch_name == 'windows':
-        lib_name = f'tonlibjson.{machine}.dll'
-    else:
-        raise RuntimeError(f"Platform '{arch_name}({machine})' is not compatible yet. Read more at https://github.com/psylopunk/ton/issues/7")
-    return pkg_resources.resource_filename('ton', f'distlib/{arch_name}/{lib_name}')
-
-
 class TonLib:
     def __init__(self, loop, ls_index, cdll_path=None):
         logging.basicConfig(level=logging.NOTSET, format='%(asctime)s | %(name)s | %(levelname)s | %(message)s')
         self.logger = logging.getLogger('ton')
         self.logger.disabled = True
-
-        cdll_path = get_tonlib_path() if not cdll_path else cdll_path
 
         tonlib = CDLL(cdll_path)
         self.logger.debug(f'Loaded CDLL {cdll_path}')

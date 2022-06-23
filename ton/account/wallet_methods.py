@@ -1,15 +1,10 @@
-from ..tl.types import InputKeyRegular, WalletV3InitialAccountState, ActionMsg, \
-    MsgMessage, MsgDataText, AccountAddress
-from ..tl.functions import CreateQuery, QuerySend, ExportKey
-from .account import Account
+from ..tl.functions import CreateQuery, Query_Send, ExportKey
+from ..tl.types import InputKeyRegular, WalletV3InitialAccountState, ActionMsg, MsgMessage, MsgDataRaw, MsgDataText
 from ..errors import InvalidUsage
 from typing import Union
 
-
-class Wallet(Account):
-    def __repr__(self): return f"Wallet<{self.account_address.account_address}>"
-
-    async def send_messages(self, messages: list, allow_send_to_uninited=False, timeout: int=300):
+class WalletMethods:
+    async def send_messages(self, messages: list, allow_send_to_uninited=False, timeout: int = 300):
         query = CreateQuery(
             InputKeyRegular(self.key, local_password=self.local_password),
             WalletV3InitialAccountState(self.key, self.client.config_info.default_wallet_id),
@@ -21,10 +16,10 @@ class Wallet(Account):
             timeout=timeout
         )
         query_id = (await self.client.execute(query)).id
-        result = await self.client.execute(QuerySend(query_id))
+        result = await self.client.execute(Query_Send(query_id))
         return result
 
-    async def transfer(self, destination: Union[str, list], amount: int=None, comment=None, send_mode: int=1, **kwargs):
+    async def transfer(self, destination: Union[str, list], amount: int = None, data: bytes = None, comment=None, send_mode: int = 1, **kwargs):
         messages = []
         if type(destination) == str:
             assert type(amount) == int, 'amount type must be int if destination is str'
@@ -32,22 +27,22 @@ class Wallet(Account):
                 MsgMessage(
                     destination,
                     amount,
-                    data=MsgDataText(comment or ''),
+                    data=MsgDataRaw(data) if not (data is None) else MsgDataText(comment or ''),
                     public_key=self.key.public_key,
                     send_mode=send_mode
                 )
             )
         elif type(destination) == list:
             for output in destination:
-                assert type(output) in [tuple, list], 'output must be tuple or list (address, amount, comment: optional)'
+                assert type(output) in [tuple,
+                                        list], 'output must be tuple or list (address, amount, comment: optional)'
                 messages.append(
                     MsgMessage(
                         output[0],
                         int(output[1]),
-                        data=MsgDataText(
-                            (output[2] if len(output) > 2 else '')
-                                if comment is None else comment
-                        ),
+                        data=(MsgDataRaw(data) if not (data is None) else MsgDataText(
+                            (output[2] if len(output) > 2 else '') if comment is None else comment
+                        )),
                         public_key=self.key.public_key,
                         send_mode=send_mode
                     )

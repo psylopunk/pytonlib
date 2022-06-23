@@ -1,6 +1,6 @@
 from ..tl.types import WalletV3InitialAccountState, Key, ExportedKey
 from ..tl.functions import GetAccountAddress, ImportKey
-from ..models import Wallet
+from ..account import Account
 
 class WalletMethods:
     async def create_wallet(self, revision=0, workchain_id: int=None, local_password=None):
@@ -25,7 +25,7 @@ class WalletMethods:
             workchain_id=workchain_id
         )
         r = await self.tonlib_wrapper.execute(query)
-        return Wallet(r.account_address, key=key, local_password=local_password, client=self)
+        return Account(r.account_address, key=key, local_password=local_password, client=self)
 
     async def find_wallet(self, path, local_password=None):
         """
@@ -41,7 +41,7 @@ class WalletMethods:
             WalletV3InitialAccountState(key, int(self.config_info.default_wallet_id))
         )
         r = await self.tonlib_wrapper.execute(query)
-        return Wallet(r.account_address, key=key, local_password=local_password, client=self)
+        return Account(r.account_address, key=key, local_password=local_password, client=self)
 
     async def import_wallet(self, word_list, local_password=''):
         """

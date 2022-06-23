@@ -2,18 +2,22 @@ from .tonlib_methods import TonlibMethods
 from .wallet_methods import WalletMethods
 from .function_methods import FunctionMethods
 from .tonlib_methods import TonlibMethods
+from .converter_methods import ConverterMethods
 from ..tl.types import AccountAddress
-from ..models import Account
+from ..account import Account
 from typing import Union
 import asyncio
 import sys, os
 
 
-class TonlibClient(TonlibMethods, WalletMethods, FunctionMethods):
+class TonlibClient(TonlibMethods, WalletMethods, FunctionMethods, ConverterMethods):
+    # Enable unaudited binaries (off by default)
+    _use_unaudited_binaries = False
+
     def __init__(
             self,
             ls_index=0,
-            config='https://ton-blockchain.github.io/global.config.json',
+            config='https://ton.org/global-config.json',
             keystore=None,
             workchain_id=0,
             verbosity_level=0
@@ -22,7 +26,7 @@ class TonlibClient(TonlibMethods, WalletMethods, FunctionMethods):
             if '.keystore' not in os.listdir(path='.'): os.system('mkdir .keystore')
             keystore = '.keystore'
 
-        self.loop = asyncio.get_event_loop()
+        self.loop = None
         self.ls_index = ls_index
         self.config = config
         self.keystore = keystore
