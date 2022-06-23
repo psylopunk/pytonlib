@@ -23,7 +23,9 @@ setuptools.setup(
     ],
     package_data={
         'ton': [
-            'distlib/*',
+            'distlib/linux/*',
+            'distlib/darwin/*',
+            'distlib/windows/*'
         ]
     },
     zip_safe=True,
