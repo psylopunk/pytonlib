@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="ton",
-    version="0.17",
+    version="0.18",
     author="psylopunk",
     author_email="psylopunk@protonmail.com",
     description="Python client for The Open Network",
@@ -23,7 +23,7 @@ setuptools.setup(
     ],
     package_data={
         'ton': [
-            'distlib/linux/*',
+            'distlib/*',
         ]
     },
     zip_safe=True,
