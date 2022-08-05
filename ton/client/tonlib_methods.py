@@ -1,23 +1,15 @@
-from ..tonlibjson import TonLib
+from ..tonlibjson import TonLib, get_tonlib_path
+from pathlib import Path
+from datetime import datetime
+from copy import deepcopy
+from logging import getLogger
 import ujson as json
 import asyncio
 import requests
 import platform
 import pkg_resources
 
-def get_tonlib_path():
-    arch_name = platform.system().lower()
-    machine = platform.machine().lower()
-    if arch_name == 'linux':
-        lib_name = f'libtonlibjson.{machine}.so'
-    elif arch_name == 'darwin':
-        lib_name = f'libtonlibjson.{machine}.dylib'
-    elif arch_name == 'windows':
-        lib_name = f'tonlibjson.{machine}.dll'
-    else:
-        raise RuntimeError(f"Platform '{arch_name}({machine})' is not compatible yet. Read more at https://github.com/psylopunk/ton/issues/7")
-
-    return pkg_resources.resource_filename('ton', f'distlib/{arch_name}/{lib_name}')
+logger = getLogger('ton')
 
 class TonlibMethods:
     @classmethod
@@ -27,16 +19,11 @@ class TonlibMethods:
         """
         cls._use_unaudited_binaries = True
 
-    async def _execute(self, query, timeout=30):
-        if self.locked: return None
-        self.locked = True
-        self.lock.release()
-
-        result = await self.tonlib_wrapper.execute(query, timeout=timeout)
-        async with self.lock:
-            self.locked = False
-
-        return result
+    @property
+    def local_config(self):
+        local = deepcopy(self.config)
+        local['liteservers'] = [local['liteservers'][self.ls_index]]
+        return local
 
     async def execute(self, query, timeout=30):
         """
@@ -46,18 +33,7 @@ class TonlibMethods:
         :param timeout:
         :return: TLObject
         """
-
-        while True:
-            if self.locked:
-                await asyncio.sleep(0.3)
-            else:
-                if self.lock.locked():
-                    self.lock.release()
-
-                break
-
-        await self.lock.acquire()
-        result = await self._execute(query, timeout=timeout)
+        result = await self.tonlib_wrapper.execute(query, timeout=timeout)
         if result.type == 'error':
             raise Exception(result.message)
 
@@ -71,6 +47,8 @@ class TonlibMethods:
         if type(self.config) == str:
             if self.config.find('http://') == 0 or self.config.find('https://') == 0:
                 self.config = requests.get(self.config).json()
+
+        self.max_parallel_requests = self.config['liteservers'][0].get("max_parallel_requests", 50)
 
         if cdll_path is None:
             if self._use_unaudited_binaries is False:
@@ -86,29 +64,21 @@ class TonlibMethods:
 
             cdll_path = get_tonlib_path()
 
-        self.tonlib_wrapper = TonLib(self.loop, self.ls_index, cdll_path=cdll_path)
-        await self.set_verbosity_level(self.verbosity_level)
-        
-        if self.keystore:
-            keystore_obj = {
-                '@type': 'keyStoreTypeDirectory',
-                'directory': self.keystore
-            }
-        else:
-            keystore_obj = {
-                '@type': 'keyStoreTypeInMemory'
-            }
+        wrapper = TonLib(self.loop, self.ls_index, cdll_path, self.verbosity_level)
+        keystore_obj = {
+            '@type': 'keyStoreTypeDirectory',
+            'directory': self.keystore
+        }
+        # create keystore
+        Path(self.keystore).mkdir(parents=True, exist_ok=True)
 
-        self.config['liteservers'] = [
-            self.config['liteservers'][self.ls_index]
-        ]
         request = {
             '@type': 'init',
             'options': {
                 '@type': 'options',
                 'config': {
                     '@type': 'config',
-                    'config': json.dumps(self.config),
+                    'config': json.dumps(self.local_config),
                     'use_callbacks_for_network': False,
                     'blockchain_name': '',
                     'ignore_cache': False
@@ -116,10 +86,17 @@ class TonlibMethods:
                 'keystore_type': keystore_obj
             }
         }
+        self.tonlib_wrapper = wrapper
 
+        # set confog
         r = await self.tonlib_wrapper.execute(request)
-        self.tonlib_wrapper.set_restart_hook(hook=self.reconnect, max_requests=500)
         self.config_info = r.config_info
+
+        # set semaphore
+        self.semaphore = asyncio.Semaphore(self.max_parallel_requests)
+
+        logger.info(F"TonLib #{self.ls_index:03d} inited successfully")
+        await self.set_verbosity_level(self.verbosity_level)
 
     async def reconnect(self):
         """

@@ -1,5 +1,5 @@
 from ..base import TLObject
-from ...utils.base import str_b64encode, bytes_b64encode
+from ...utils.common import str_b64encode, bytes_b64encode
 from typing import Union
 from .accounts import *
 

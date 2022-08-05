@@ -114,12 +114,3 @@ EQCi-D5OSmueD61_ZCw7D_tcMMjB8E5e5AECZT7lCM2Gm6O1
 
 Found a bug? Or just improvments? -- Read more about this in [Troubleshooting](troubleshooting.md)
 
-### Dependencies <a href="#dependencies" id="dependencies"></a>
-
-The TON library relies on these excellent libraries:
-
-* `crc16` - Library for calculating CRC16
-* `poetry` - Python packaging and dependency management made easy
-* `requests` _- HTTP interface for python_
-* `ujson` - Ultra fast JSON encoder and decoder
-* `ed25519` - Public-key signature system

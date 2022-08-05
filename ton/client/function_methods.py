@@ -1,5 +1,6 @@
-from ..tl.functions import CreateNewKey, SetLogVerbosityLevel
-from ..tl.types import Key
+from ..tl.functions import CreateNewKey, SetLogVerbosityLevel, ExportUnencryptedKey
+from ..tl.types import Key, InputKeyRegular
+
 
 class FunctionMethods:
     async def set_verbosity_level(self, level):
@@ -24,3 +25,15 @@ class FunctionMethods:
         )
         r = await self.tonlib_wrapper.execute(query)
         return Key(r.public_key, secret=r.secret)
+
+    async def export_key(self, input_key: InputKeyRegular):
+        """
+        Exporting a signing private key
+
+        :param input_key:
+        :return: base64 str
+        """
+
+        query = ExportUnencryptedKey(input_key)
+        r = await self.tonlib_wrapper.execute(query)
+        return r.data

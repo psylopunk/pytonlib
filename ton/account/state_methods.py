@@ -1,6 +1,6 @@
 from ..tl.functions import Raw_GetAccountState, Raw_GetTransactions
 from ..tl.types import Internal_TransactionId
-from ..utils import KNOWN_CONTRACT_TYPES
+from ..utils import contracts, sha256, contracts
 
 class StateMethods:
     async def load_state(self):
@@ -16,7 +16,7 @@ class StateMethods:
 
     async def detect_type(self):
         state = await self.get_state()
-        return KNOWN_CONTRACT_TYPES.get(state.code, None)
+        return contracts.get(sha256(state.code), None)
 
     async def get_balance(self):
         return int(
@@ -55,7 +55,3 @@ class StateMethods:
                 break
 
         return all_transactions
-
-    # TODO: remove in next version
-    async def find_type(self):
-        raise Exception('Account.find_type is deprecated, try Account.detect_type instead')
