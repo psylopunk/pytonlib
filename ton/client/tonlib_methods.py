@@ -3,7 +3,7 @@ from pathlib import Path
 from datetime import datetime
 from copy import deepcopy
 from logging import getLogger
-import ujson as json
+import json
 import asyncio
 import requests
 import platform
