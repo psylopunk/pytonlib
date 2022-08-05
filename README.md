@@ -28,9 +28,9 @@ chmod +x build_tonlib.sh && ./build_tonlib.sh # docker is needed
 
 #### Getting started
 
-Examples will give a general look at the library. They describe almost all supported methods, but in addition, below you can see each method in detail. To make a custom request to `libtonlibjson`, check out list of available methods and execute it using `client.execute`
+[Examples](https://github.com/psylopunk/pytonlib/tree/main/examples) will give a general look at the library. They describe almost all supported methods, but in addition, below you can see each method in detail. To make a custom request to `libtonlibjson`, check out list of available methods and execute it using `client.execute`
 
-#### [More documentation here](developer-interface/) <a href="#documentation" id="documentation"></a>
+#### [More documentation here](developer-interface.md) <a href="#documentation" id="documentation"></a>
 
 #### Troubleshooting
 
