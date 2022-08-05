@@ -1,4 +1,4 @@
-from ..tl.functions import CreateNewKey, SetLogVerbosityLevel, ExportUnencryptedKey
+from ..tl.functions import CreateNewKey, SetLogVerbosityLevel, ExportUnencryptedKey, Raw_SendMessage
 from ..tl.types import Key, InputKeyRegular
 
 
@@ -7,6 +7,19 @@ class FunctionMethods:
         return await self.tonlib_wrapper.execute(
             SetLogVerbosityLevel(level)
         )
+
+
+    async def send_boc(self, message: bytes):
+        """
+        Sending a message to the network
+
+        :param message: bytes
+        :return:
+        """
+
+        query = Raw_SendMessage(message)
+        return await self.tonlib_wrapper.execute(query)
+
 
     async def create_new_key(self, mnemonic_password='', random_extra_seed=None, local_password=None):
         """
