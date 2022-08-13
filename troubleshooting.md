@@ -1,4 +1,4 @@
-# Troubleshooting
+# ⚠ Troubleshooting
 
 Library functions make requests via `ton.tl.functions`. Each of the classes is a reference to the `libtonlibjson` method ([full list](https://github.com/newton-blockchain/ton/blob/master/tl/generate/scheme/tonlib\_api.tl)).
 
