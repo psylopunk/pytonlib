@@ -1,7 +1,7 @@
+from typing import Union
+
 from ..base import TLObject
 from ..types import AccountAddress, Internal_TransactionId
-from ...utils import str_b64encode
-from typing import Union
 
 
 class GetAccountAddress(TLObject):

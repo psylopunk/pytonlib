@@ -1,7 +1,11 @@
-from ..base import TLObject
 from ...utils.common import str_b64encode, bytes_b64encode
 from typing import Union
 from .accounts import *
+from typing import Union
+
+from .accounts import *
+from ...utils.common import str_b64encode, bytes_b64encode
+
 
 class MsgDataText(TLObject):
     def __init__(self, text: str):

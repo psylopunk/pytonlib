@@ -2,8 +2,9 @@ import asyncio
 import functools
 import inspect
 
-from .client import TonlibClient
 from .account import Account
+from .client import TonlibClient
+
 
 def _syncify_wrap(t, method_name):
     method = getattr(t, method_name)

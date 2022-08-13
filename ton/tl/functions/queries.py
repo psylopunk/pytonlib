@@ -1,7 +1,8 @@
+from typing import Union
+
 from ..base import TLObject
 from ..types import InputKeyRegular, Raw_InitialAccountState, AccountAddress, ActionMsg
-from ...utils.common import str_b64encode, bytes_b64encode
-from typing import Union
+from ...utils.common import bytes_b64encode
 
 
 class Raw_CreateQuery(TLObject):

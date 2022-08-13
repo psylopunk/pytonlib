@@ -1,10 +1,10 @@
+from .nft_methods import NFTMethods
+from .smc_methods import SmcMethods
 from .state_methods import StateMethods
 from .wallet_methods import WalletMethods
-from .smc_methods import SmcMethods
-from .nft_methods import NFTMethods
-from ..tl.types import AccountAddress, Raw_InitialAccountState
-from ..tl.functions import GetAccountAddress
 from ..errors import InvalidUsage
+from ..tl.functions import GetAccountAddress
+from ..tl.types import AccountAddress, Raw_InitialAccountState
 
 
 class Account(StateMethods, WalletMethods, SmcMethods, NFTMethods):

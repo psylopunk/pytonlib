@@ -1,5 +1,6 @@
-from ..tl.functions import Smc_Load, Smc_RunGetMethod, Raw_CreateAndSendMessage
 from typing import Union
+
+from ..tl.functions import Smc_Load, Smc_RunGetMethod, Raw_CreateAndSendMessage
 
 
 class SmcMethods:

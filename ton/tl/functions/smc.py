@@ -1,6 +1,7 @@
+from typing import Union
+
 from ..base import TLObject
 from ..types import AccountAddress, Smc_MethodIdName, Smc_MethodIdNumber
-from typing import Union
 
 
 class Smc_Load(TLObject):

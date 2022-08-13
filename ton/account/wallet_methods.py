@@ -1,10 +1,17 @@
+import json
+import logging
+from base64 import b64encode, b64decode
+from typing import Union
+
+from nacl.signing import SigningKey
+
+from ..errors import InvalidUsage
 from ..tl.functions import CreateQuery, Query_Send, ExportKey
 from ..tl.types import InputKeyRegular, Raw_InitialAccountState, ActionMsg, MsgMessage, MsgDataRaw, MsgDataText
-from ..errors import InvalidUsage
 from ..utils.wallet import sources, contracts, sha256
-from nacl.signing import SigningKey
-from base64 import b64decode
-from typing import Union
+
+logger = logging.getLogger('ton')
+
 
 class WalletMethods:
     async def build_state(self):
@@ -12,9 +19,9 @@ class WalletMethods:
         if state.code:
             return {'code': b64decode(state.code), 'data': b64decode(state.data) if state.data else state.data}
 
-        assert 'source' in self.__dict__, 'source must be specified'
-        assert 'wallet_id' in self.__dict__, 'wallet_id must be specified'
-        assert 'key' in self.__dict__, 'key must be specified'
+        assert hasattr(self, 'source'), 'source must be specified'
+        assert hasattr(self, 'wallet_id'), 'wallet_id must be specified'
+        assert hasattr(self, 'key'), 'key must be specified'
         return {
             'code': b64decode(sources[self.source]),
             'data': contracts[sha256(sources[self.source])]['data_builder'](
@@ -78,6 +85,7 @@ class WalletMethods:
 
         return await self.send_messages(messages, **kwargs)
 
+
     async def transfer_nft(
         self, nft_address, new_owner_address, response_address=None,
         query_id: int = 0, forward_amount: int = 0, forward_payload: bytes = None
@@ -89,12 +97,44 @@ class WalletMethods:
         return await self.transfer(nft_address, self.client.to_nano(0.05), data=body)
 
 
+    async def seqno(self):
+        result = await self.run_get_method('seqno')
+        if result.exit_code != 0:
+            return 0
+
+        return int(result.stack[0].number.number)
+
+
+    async def get_public_key(self):
+        if hasattr(self, 'key'):
+            return b64decode(
+                await self.client.export_key(InputKeyRegular(self.key, local_password=self.__dict__.get('local_password')))
+            )
+        else:
+            try:
+                result = await self.run_get_method('get_public_key')
+                assert result.exit_code == 0, 'get_public_key failed'
+                return int(result.stack[0].number.number).to_bytes(32, 'big')
+            except Exception as e:
+                logger.debug('get_public_key failed: {}'.format(e))
+                return None
+
+
     @property
     def path(self):
         """
         :return: path (str)
         """
-        return ''.join([self.key.public_key, self.key.secret])
+
+        path_obj = dict()
+        path_obj['pk'] = self.key.public_key
+        path_obj['sk'] = self.key.secret if hasattr(self.key, 'secret') else None
+        path_obj['wi'] = self.wallet_id if hasattr(self, 'wallet_id') else None
+        path_obj['wc'] = self.workchain_id if hasattr(self, 'workchain_id') else None
+        path_obj['sr'] = self.source if hasattr(self, 'source') else None
+        return b64encode(
+            json.dumps(path_obj).encode('utf-8')
+        ).decode('utf-8')
 
 
     async def export(self):

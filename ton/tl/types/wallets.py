@@ -1,7 +1,11 @@
-from ..base import TLObject
-from ...utils.common import str_b64encode, bytes_b64encode
+from ...utils.common import bytes_b64encode
 from .keys import *
 from typing import Union
+from typing import Union
+
+from .keys import *
+from ...utils.common import bytes_b64encode
+
 
 class Raw_InitialAccountState(TLObject):
     def __init__(self, code: bytes, data: bytes=None):

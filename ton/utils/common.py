@@ -1,6 +1,7 @@
-from hashlib import sha256 as hasher
-from base64 import b64encode
 import codecs
+from base64 import b64encode
+from hashlib import sha256 as hasher
+
 
 def sha256(x):
     if not isinstance(x, bytes):

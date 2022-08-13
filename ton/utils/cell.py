@@ -1,6 +1,8 @@
-from .address import detect_address
 from math import ceil
+
 from bitarray.util import ba2int
+
+from .address import detect_address
 
 
 def write_address(cell, address):

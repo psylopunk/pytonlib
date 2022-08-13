@@ -1,6 +1,6 @@
 from ..tl.functions import Raw_GetAccountState, Raw_GetTransactions
 from ..tl.types import Internal_TransactionId
-from ..utils import contracts, sha256, contracts
+from ..utils import sha256, contracts
 
 class StateMethods:
     async def load_state(self):

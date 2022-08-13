@@ -1,13 +1,16 @@
-from ..tl.types import WalletV3InitialAccountState, Key, ExportedKey, Raw_InitialAccountState, InputKeyRegular
-from ..tl.functions import GetAccountAddress, ImportKey
-from ..account import Account
-from ..utils.wallet import contracts, sources, sha256
-from nacl.signing import SigningKey
+import json
 from base64 import b64decode
+
+from nacl.signing import SigningKey
+
+from ..account import Account
+from ..tl.functions import GetAccountAddress, ImportKey
+from ..tl.types import Key, ExportedKey, Raw_InitialAccountState, InputKeyRegular
+from ..utils.wallet import contracts, sources, sha256
 
 
 class WalletMethods:
-    async def create_wallet(self, source='v3r2', workchain_id: int = 0, wallet_id: int = 0, local_password=None):
+    async def create_wallet(self, source='v3r2', workchain_id: int = 0, wallet_id: int = None, local_password=None):
         """
         Generating a wallet using a key from self.create_new_key and TON default seed
 
@@ -46,23 +49,38 @@ class WalletMethods:
             source=source, workchain_id=workchain_id, wallet_id=wallet_id
         )
 
-    async def find_wallet(self, path, local_password=None):
+    async def find_wallet(self, path, local_password=None, workchain_id=0):
         """
         Getting a wallet from Keystore via Wallet.path
 
         :param path:
         :param local_password: local storage encrypt password
+        :param workchain_id:
         :return: Wallet
         """
 
-        # TODO: make pack wallet_id and other. Deprecate this method. Only v3 wallets support
-
-        key = Key(path[:48], secret=path[48:] if path[48:] else None)
+        path = json.loads(b64decode(path).decode('utf-8'))
+        key = Key(path.get('pk'), secret=path.get('sk'))
+        source = path.get('sr', 'v3r2')
+        wallet_id = path.get('wi', int(self.config_info.default_wallet_id))
+        workchain_id = workchain_id or path.get('wc', 0)
         query = GetAccountAddress(
-            WalletV3InitialAccountState(key, int(self.config_info.default_wallet_id))
+            Raw_InitialAccountState(
+                b64decode(sources[source]),
+                contracts[sha256(sources[source])]['data_builder'](
+                    wallet_id, SigningKey(
+                        b64decode(await self.export_key(InputKeyRegular(key, local_password=local_password)))
+                    ).verify_key._key
+                ).serialize_boc()
+            ),
+            revision=0,
+            workchain_id=workchain_id
         )
         r = await self.tonlib_wrapper.execute(query)
-        return Account(r.account_address, key=key, local_password=local_password, client=self)
+        return Account(
+            r.account_address, key=key, local_password=local_password, client=self,
+            source=source, workchain_id=workchain_id, wallet_id=wallet_id
+        )
 
     async def import_wallet(self, word_list, source='v3r2', workchain_id: int = None, wallet_id: int = None, local_password=None):
         """

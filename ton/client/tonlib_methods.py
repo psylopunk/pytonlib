@@ -1,13 +1,12 @@
-from ..tonlibjson import TonLib, get_tonlib_path
-from pathlib import Path
-from datetime import datetime
+import asyncio
+import json
 from copy import deepcopy
 from logging import getLogger
-import json
-import asyncio
+from pathlib import Path
+
 import requests
-import platform
-import pkg_resources
+
+from ..tonlibjson import TonLib, get_tonlib_path
 
 logger = getLogger('ton')
 

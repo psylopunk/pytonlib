@@ -1,16 +1,16 @@
-from .tl.base import TLObject
+import asyncio
+import functools
 import json
+import logging
 import platform
+import random
+import time
 import traceback
+from ctypes import *
 
 import pkg_resources
-import random
-import asyncio
-import time
-import functools
-import logging
 
-from ctypes import *
+from .tl.base import TLObject
 
 logger = logging.getLogger('ton')
 
