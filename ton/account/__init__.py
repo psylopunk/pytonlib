@@ -1,3 +1,4 @@
+from .ft_methods import FTMethods
 from .nft_methods import NFTMethods
 from .smc_methods import SmcMethods
 from .state_methods import StateMethods
@@ -7,7 +8,7 @@ from ..tl.functions import GetAccountAddress
 from ..tl.types import AccountAddress, Raw_InitialAccountState
 
 
-class Account(StateMethods, WalletMethods, SmcMethods, NFTMethods):
+class Account(StateMethods, WalletMethods, SmcMethods, NFTMethods, FTMethods):
     def __repr__(self):
         return f"Account<{self.account_address.account_address}>"
 

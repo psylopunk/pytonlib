@@ -1,8 +1,10 @@
 from base64 import b64decode
 
-from tvm_valuetypes import Cell, deserialize_boc
+from tonsdk.boc import Cell
+from tonsdk.utils import Address
+
 from ..tl.types import Tvm_StackEntryNumber, Tvm_NumberDecimal
-from ..utils.cell import read_address, write_address, write_coins, write_bytes
+from ..utils.cell import read_address
 
 
 class NFTMethods:
@@ -15,9 +17,9 @@ class NFTMethods:
         return {
             'is_initialized': int(response.stack[0].number.number),
             'index': int(response.stack[1].number.number),
-            'collection_address': read_address(deserialize_boc(b64decode(response.stack[2].cell.bytes))),
-            'owner_address': read_address(deserialize_boc(b64decode(response.stack[3].cell.bytes))),
-            'content': deserialize_boc(b64decode(response.stack[4].cell.bytes))
+            'collection_address': read_address(Cell.one_from_boc(b64decode(response.stack[2].cell.bytes))),
+            'owner_address': read_address(Cell.one_from_boc(b64decode(response.stack[3].cell.bytes))),
+            'content': Cell.one_from_boc(b64decode(response.stack[4].cell.bytes))
         }
 
 
@@ -28,8 +30,8 @@ class NFTMethods:
 
         return {
             'next_item_index': int(response.stack[0].number.number),
-            'content': deserialize_boc(b64decode(response.stack[1].cell.bytes)),
-            'owner_address': read_address(deserialize_boc(b64decode(response.stack[2].cell.bytes)))
+            'content': Cell.one_from_boc(b64decode(response.stack[1].cell.bytes)),
+            'owner_address': read_address(Cell.one_from_boc(b64decode(response.stack[2].cell.bytes)))
         }
 
 
@@ -40,7 +42,7 @@ class NFTMethods:
             raise Exception('get_nft_address_by_index exit_code: {}'.format(response.exit_code))
 
         return {
-            'address': read_address(deserialize_boc(b64decode(response.stack[0].cell.bytes)))
+            'address': read_address(Cell.one_from_boc(b64decode(response.stack[0].cell.bytes)))
         }
 
 
@@ -53,7 +55,7 @@ class NFTMethods:
             'royalty_factor': int(response.stack[0].number.number),
             'royalty_base': int(response.stack[1].number.number),
             'royalty': int(response.stack[0].number.number) / int(response.stack[1].number.number),
-            'royalty_address': read_address(deserialize_boc(b64decode(response.stack[2].cell.bytes)))
+            'royalty_address': read_address(Cell.one_from_boc(b64decode(response.stack[2].cell.bytes)))
         }
 
 
@@ -62,12 +64,14 @@ class NFTMethods:
         forward_amount: int = 0, forward_payload: bytes = None
     ) -> Cell:
         cell = Cell()
-        cell.data.put_arbitrary_uint(0x5fcc3d14, 32)  # transfer op-code
-        cell.data.put_arbitrary_uint(query_id, 64)
-        write_address(cell, new_owner_address)
-        write_address(cell, response_address)
-        cell.data.put_arbitrary_uint(0, 1)  # null custom_payload
-        write_coins(cell, forward_amount)
-        cell.data.put_arbitrary_uint(0, 1)  # forward_payload in this slice, not separate cell
-        if forward_payload: write_bytes(cell, forward_payload)
+        cell.bits.write_uint(0x5fcc3d14, 32)  # transfer op-code
+        cell.bits.write_uint(query_id, 64)
+        cell.bits.write_address(Address(new_owner_address))
+        cell.bits.write_address(Address(response_address or new_owner_address))
+        cell.bits.write_uint(0, 1)  # null custom_payload
+        cell.bits.write_grams(forward_amount)
+        cell.bits.write_uint(0, 1)  # forward_payload in this slice, not separate cell
+        if forward_payload:
+            cell.bits.write_bytes(forward_payload)
+
         return cell

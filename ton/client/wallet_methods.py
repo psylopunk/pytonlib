@@ -38,7 +38,7 @@ class WalletMethods:
                     wallet_id, SigningKey(
                         b64decode(await self.export_key(InputKeyRegular(key, local_password=local_password)))
                     ).verify_key._key
-                ).serialize_boc()
+                ).to_boc(False)
             ),
             revision=0,
             workchain_id=workchain_id
@@ -71,7 +71,7 @@ class WalletMethods:
                     wallet_id, SigningKey(
                         b64decode(await self.export_key(InputKeyRegular(key, local_password=local_password)))
                     ).verify_key._key
-                ).serialize_boc()
+                ).to_boc(False)
             ),
             revision=0,
             workchain_id=workchain_id

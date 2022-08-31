@@ -1,20 +1,20 @@
 import codecs
 from hashlib import sha256 as hasher
 
-from tvm_valuetypes.cell import deserialize_boc, Cell
+from tonsdk.boc import Cell
 
 
 def seqno_extractor(result, data):
-    data_cell = deserialize_boc(codecs.decode(codecs.encode(data["data"], 'utf-8'), 'base64'))
-    seqno = int.from_bytes(data_cell.data.data[0:32].tobytes(), 'big')
+    data_cell = Cell.one_from_boc(codecs.decode(codecs.encode(data["data"], 'utf-8'), 'base64'))
+    seqno = int.from_bytes(data_cell.bits.array[0:4], 'big')
     result['seqno'] = seqno
 
 
 def v3_extractor(result, data):
     seqno_extractor(result, data)
     try:
-        data_cell = deserialize_boc(codecs.decode(codecs.encode(data["data"], 'utf-8'), 'base64'))
-        wallet_id = int.from_bytes(data_cell.data.data[32:64].tobytes(), 'big')
+        data_cell = Cell.one_from_boc(codecs.decode(codecs.encode(data["data"], 'utf-8'), 'base64'))
+        wallet_id = int.from_bytes(data_cell.bits.array[4:8], 'big')
         result['wallet_id'] = wallet_id
     except Exception as e:
         print('Extracting wallet_id failed:', str(e))
@@ -22,15 +22,15 @@ def v3_extractor(result, data):
 
 def v3_builder(wallet_id: int, public_key: bytes):
     cell = Cell()
-    cell.data.put_arbitrary_uint(0, 32)  # seqno
-    cell.data.put_arbitrary_uint(int(wallet_id), 32)
-    cell.data.put_arbitrary_uint(int.from_bytes(public_key, byteorder='big'), 256)
+    cell.bits.write_uint(0, 32)  # seqno
+    cell.bits.write_uint(int(wallet_id), 32)
+    cell.bits.write_bytes(public_key)
     return cell
 
 
 def v4_builder(wallet_id: int, public_key: bytes):
     cell = v3_builder(wallet_id, public_key)
-    cell.data.put_arbitrary_uint(0, 1)  # empty plugins dict
+    cell.bits.write_uint(0, 1)  # empty plugins dict
     return cell
 
 
@@ -58,7 +58,7 @@ sources = {
 contracts = {
     sha256(sources[name]): {
         'type': name,
-        'data_extractor': v3_extractor if name.find('v') == 0 else None,
+        'data_extractor': v3_extractor if name.find('v') == 0 else None,  # because v3 is the only one with data extractor
         'data_builder': {
             'v1': None,
             'v2': None,

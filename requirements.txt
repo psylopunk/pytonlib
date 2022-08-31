@@ -1,4 +1,4 @@
 crc16==0.1.1
-tvm_valuetypes==0.0.9
+tonsdk==1.0.5
 requests==2.27.1
 pynacl==1.5.0

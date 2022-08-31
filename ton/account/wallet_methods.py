@@ -32,7 +32,7 @@ class WalletMethods:
                         )
                     )
                 ).verify_key._key
-            ).serialize_boc()
+            ).to_boc(False)
         }
 
 
@@ -93,7 +93,7 @@ class WalletMethods:
         account = await self.client.find_account(nft_address)
         body = account.create_transfer_nft_body(
             new_owner_address, response_address, query_id, forward_amount, forward_payload
-        ).serialize_boc()
+        ).to_boc(False)
         return await self.transfer(nft_address, self.client.to_nano(0.05), data=body)
 
 
