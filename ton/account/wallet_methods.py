@@ -98,7 +98,7 @@ class WalletMethods:
 
 
     async def seqno(self):
-        result = await self.run_get_method('seqno')
+        result = await self.run_get_method('seqno', force=True)
         if result.exit_code != 0:
             return 0
 
