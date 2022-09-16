@@ -16,7 +16,7 @@ setuptools.setup(
     install_requires=[
         'crc16>=0.1.1',
         'requests>=2.27.1',
-        'tonsdk>=1.0.5',
+        'tonsdk>=1.0.6',
         'PyNaCl>=1.5.0'
     ],
     package_data={
