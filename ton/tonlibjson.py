@@ -184,8 +184,8 @@ class TonLib:
     async def close(self):
         try:
             self._state = 'finished'
-            await self.read_results_task()
-            await self.del_expired_futures_task()
+            await self.read_results_task
+            await self.del_expired_futures_task
         except Exception as ee:
             logger.error(f"Exception in tonlibjson.close: {traceback.format_exc()}")
             raise RuntimeError(f'Error in tonlibjson.close: {ee}')
