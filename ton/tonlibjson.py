@@ -118,7 +118,6 @@ class TonLib:
         self._state = None  # None, "finished", "crashed", "stuck"
 
         self.is_dead = False
-
         # creating tasks
         self.read_results_task = self.loop.create_task(self.read_results())
         self.del_expired_futures_task = self.loop.create_task(self.del_expired_futures_loop())
@@ -161,7 +160,6 @@ class TonLib:
 
         future_result = self.loop.create_future()
         self.futures[extra_id] = future_result
-
         self.loop.run_in_executor(None, lambda: self.send(query))
         return future_result
 
@@ -181,11 +179,16 @@ class TonLib:
     def _is_working(self):
         return self._state not in ('crashed', 'stuck', 'finished')
 
+    @property
+    def _is_closing(self):
+        return self._state == 'finishing'
+
     async def close(self):
         try:
-            self._state = 'finished'
+            self._state = 'finishing'
             await self.read_results_task
             await self.del_expired_futures_task
+            self._state = 'finished'
         except Exception as ee:
             logger.error(f"Exception in tonlibjson.close: {traceback.format_exc()}")
             raise RuntimeError(f'Error in tonlibjson.close: {ee}')
@@ -207,7 +210,7 @@ class TonLib:
         delta = 5
         receive_func = functools.partial(self.receive, timeout)
         try:
-            while self._is_working:
+            while self._is_working and not self._is_closing:
                 # return reading result
                 result = None
                 try:
@@ -235,7 +238,7 @@ class TonLib:
 
     async def del_expired_futures_loop(self):
         try:
-            while self._is_working:
+            while self._is_working and not self._is_closing:
                 self.cancel_futures()
                 await asyncio.sleep(1)
 
