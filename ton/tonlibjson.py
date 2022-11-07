@@ -213,14 +213,13 @@ class TonLib:
     # tasks
     async def read_results(self):
         timeout = self.default_timeout or 1
-        delta = 5
         receive_func = functools.partial(self.receive, timeout)
         try:
             while self._is_working and not self._is_closing:
                 # return reading result
                 result = None
                 try:
-                    result = await asyncio.wait_for(self.loop.run_in_executor(None, receive_func), timeout=timeout + delta)
+                    result = await asyncio.wait_for(self.loop.run_in_executor(None, receive_func), timeout=timeout)
                 except asyncio.TimeoutError:
                     logger.critical(f"Tonlib #{self.ls_index:03d} stuck (timeout error)")
                     self._state = "stuck"
