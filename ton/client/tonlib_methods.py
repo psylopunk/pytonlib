@@ -10,6 +10,7 @@ from ..tonlibjson import TonLib, get_tonlib_path
 
 logger = getLogger('ton')
 
+
 class TonlibMethods:
     @classmethod
     def enable_unaudited_binaries(cls):
@@ -24,7 +25,7 @@ class TonlibMethods:
         local['liteservers'] = [local['liteservers'][self.ls_index]]
         return local
 
-    async def execute(self, query, timeout=30):
+    async def execute(self, query, timeout=None):
         """
         Direct request to liteserver
 
@@ -32,7 +33,7 @@ class TonlibMethods:
         :param timeout:
         :return: TLObject
         """
-        result = await self.tonlib_wrapper.execute(query, timeout=timeout)
+        result = await self.tonlib_wrapper.execute(query, timeout=(timeout or self.default_timeout))
         if result.type == 'error':
             raise Exception(result.message)
 
@@ -63,7 +64,7 @@ class TonlibMethods:
 
             cdll_path = get_tonlib_path()
 
-        wrapper = TonLib(self.loop, self.ls_index, cdll_path, self.verbosity_level)
+        wrapper = TonLib(self.loop, self.ls_index, cdll_path, self.verbosity_level, default_timeout=self.default_timeout)
         keystore_obj = {
             '@type': 'keyStoreTypeDirectory',
             'directory': self.keystore

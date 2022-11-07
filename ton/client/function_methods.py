@@ -9,7 +9,7 @@ class FunctionMethods:
         )
 
 
-    async def send_boc(self, message: bytes):
+    async def send_boc(self, message: bytes, **kwargs):
         """
         Sending a message to the network
 
@@ -18,7 +18,7 @@ class FunctionMethods:
         """
 
         query = Raw_SendMessage(message)
-        return await self.tonlib_wrapper.execute(query)
+        return await self.tonlib_wrapper.execute(query, **kwargs)
 
 
     async def create_new_key(self, mnemonic_password='', random_extra_seed=None, local_password=None):

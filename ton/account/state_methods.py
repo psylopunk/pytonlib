@@ -2,29 +2,30 @@ from ..tl.functions import Raw_GetAccountState, Raw_GetTransactions
 from ..tl.types import Internal_TransactionId
 from ..utils import sha256, contracts
 
+
 class StateMethods:
-    async def load_state(self):
+    async def load_state(self, **kwargs):
         self.state = await self.client.tonlib_wrapper.execute(
-            Raw_GetAccountState(self.account_address)
+            Raw_GetAccountState(self.account_address), **kwargs
         )
 
-    async def get_state(self, force=False):
+    async def get_state(self, force=False, **kwargs):
         if self.state is None or force:
-            await self.load_state()
+            await self.load_state(**kwargs)
 
         return self.state
 
-    async def detect_type(self):
-        state = await self.get_state()
+    async def detect_type(self, **kwargs):
+        state = await self.get_state(**kwargs)
         return contracts.get(sha256(state.code), None)
 
-    async def get_balance(self):
+    async def get_balance(self, **kwargs):
         return int(
-            (await self.get_state(force=True)).balance # in nanocoins
+            (await self.get_state(force=True, **kwargs)).balance  # nanoTONs
         )
 
     async def get_transactions(self, from_transaction_lt=None, from_transaction_hash=None, to_transaction_lt=0, limit=10):
-        if from_transaction_lt == None or from_transaction_hash == None:
+        if from_transaction_lt is None or from_transaction_hash is None:
             state = await self.get_state(force=True)
             from_transaction_lt, from_transaction_hash = state.last_transaction_id.lt, state.last_transaction_id.hash
 

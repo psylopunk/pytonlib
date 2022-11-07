@@ -97,22 +97,22 @@ class WalletMethods:
         return await self.transfer(nft_address, self.client.to_nano(0.05), data=body)
 
 
-    async def seqno(self):
-        result = await self.run_get_method('seqno', force=True)
+    async def seqno(self, **kwargs):
+        result = await self.run_get_method('seqno', force=True, **kwargs)
         if result.exit_code != 0:
             return 0
 
         return int(result.stack[0].number.number)
 
 
-    async def get_public_key(self):
+    async def get_public_key(self, **kwargs):
         if hasattr(self, 'key'):
             return b64decode(
                 await self.client.export_key(InputKeyRegular(self.key, local_password=self.__dict__.get('local_password')))
             )
         else:
             try:
-                result = await self.run_get_method('get_public_key')
+                result = await self.run_get_method('get_public_key', **kwargs)
                 assert result.exit_code == 0, 'get_public_key failed'
                 return int(result.stack[0].number.number).to_bytes(32, 'big')
             except Exception as e:
