@@ -33,8 +33,8 @@ class FTMethods:
             'address': read_address(Cell.one_from_boc(b64decode(response.stack[0].cell.bytes)))
         }
 
-    async def get_wallet_data(self):
-        response = await self.run_get_method('get_wallet_data')
+    async def get_wallet_data(self, **kwargs):
+        response = await self.run_get_method('get_wallet_data', **kwargs)
         if response.exit_code != 0:
             raise Exception('get_wallet_data exit_code: {}'.format(response.exit_code))
 

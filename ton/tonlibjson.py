@@ -18,9 +18,11 @@ logger = logging.getLogger('ton')
 class TonlibException(Exception):
     pass
 
+
 class TonlibNoResponse(TonlibException):
     def __str__(self):
         return 'tonlibjson did not respond'
+
 
 class TonlibError(TonlibException):
     def __init__(self, result):
@@ -33,17 +35,22 @@ class TonlibError(TonlibException):
     def __str__(self):
         return self.result.get('message')
 
+
 class LiteServerTimeout(TonlibError):
     pass
+
 
 class BlockNotFound(TonlibError):
     pass
 
+
 class BlockDeleted(TonlibError):
     pass
 
+
 class ExternalMessageNotAccepted(TonlibError):
     pass
+
 
 def parse_tonlib_error(result):
     if result.get('@type') == 'error':
@@ -58,6 +65,7 @@ def parse_tonlib_error(result):
             return LiteServerTimeout(result)
         return TonlibError(result)
     return None
+
 
 def get_tonlib_path():
     arch_name = platform.system().lower()
@@ -76,14 +84,12 @@ def get_tonlib_path():
 
 
 class TonLib:
-    def __init__(self, loop, ls_index, cdll_path=None, verbosity_level=0):
+    def __init__(self, loop, ls_index, cdll_path=None, verbosity_level=0, default_timeout=None):
         self.loop = loop
+        self.default_timeout = default_timeout
+
         cdll_path = get_tonlib_path() if not cdll_path else cdll_path
         tonlib = CDLL(cdll_path)
-
-        # tonlib_client_set_verbosity_level = tonlib.tonlib_client_set_verbosity_level
-        # tonlib_client_set_verbosity_level.restype = None
-        # tonlib_client_set_verbosity_level.argtypes = [c_int]
 
         tonlib_json_client_create = tonlib.tonlib_client_json_create
         tonlib_json_client_create.restype = c_void_p
@@ -140,7 +146,7 @@ class TonLib:
             logger.error(f"Exception in tonlibjson.send: {traceback.format_exc()}")
             raise RuntimeError(f'Error in tonlibjson.send: {ee}')
 
-    def receive(self, timeout=10):
+    def receive(self, timeout=30):
         result = None
         try:
             result = self._tonlib_json_client_receive(self._client, timeout)  # time.sleep # asyncio.sleep
@@ -151,7 +157,7 @@ class TonLib:
             result = json.loads(result.decode('utf-8'))
         return result
 
-    def _execute(self, query, timeout=10):
+    def _execute(self, query, timeout=30):
         if not self._is_working:
             raise RuntimeError(f"TonLib failed with state: {self._state}")
 
@@ -163,7 +169,7 @@ class TonLib:
         self.loop.run_in_executor(None, lambda: self.send(query))
         return future_result
 
-    async def execute(self, query, timeout=10):
+    async def execute(self, query, timeout=30):
         logger.debug(f'SENT' + '\n' + f'{query}')
         if isinstance(query, TLObject): query = query.to_json()
         result = await self._execute(query, timeout=timeout)
@@ -206,7 +212,7 @@ class TonLib:
 
     # tasks
     async def read_results(self):
-        timeout = 1
+        timeout = self.default_timeout or 1
         delta = 5
         receive_func = functools.partial(self.receive, timeout)
         try:

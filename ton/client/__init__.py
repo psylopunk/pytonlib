@@ -21,10 +21,10 @@ class TonlibClient(TonlibMethods, WalletMethods, FunctionMethods, ConverterMetho
             config='https://ton.org/global-config.json',
             keystore=None,
             workchain_id=0,
-            verbosity_level=0
+            verbosity_level=0,
+            default_timeout=10
     ):
-        if keystore is None: # while memory keystore libtonlibjson bug keep
-            if '.keystore' not in os.listdir(path='.'): os.system('mkdir .keystore')
+        if keystore is None:  # while memory keystore libtonlibjson bug keep
             keystore = '.keystore'
 
         self.loop = None
@@ -33,23 +33,22 @@ class TonlibClient(TonlibMethods, WalletMethods, FunctionMethods, ConverterMetho
         self.keystore = keystore
         self.workchain_id = workchain_id
         self.verbosity_level = verbosity_level
+        self.default_timeout = default_timeout
 
-        self.queue = []
+        self.queue = []  # legacy
         self.lock = asyncio.Lock()
         self.locked = False
 
-    async def find_account(self, account_address: Union[AccountAddress, str], preload_state: bool=True):
+    async def find_account(self, account_address: Union[AccountAddress, str], preload_state: bool=True, **kwargs):
         """
-        Getting a Account object by account address
+        Getting an Account object by account address
 
         :param account_address:
         :return: Account
         """
 
         account = Account(account_address, client=self)
-        if preload_state: await account.load_state()
-        return account
+        if preload_state:
+            await account.load_state(**kwargs)
 
-    # TODO: remove in next version
-    async def wallet_from_exported_key(self, exported_key: str, revision: int=0, workchain_id: int=None):
-        raise Exception('TonlibClient.wallet_from_exported_key is deprecated, try Tonlibclient.find_wallet instead')
+        return account
