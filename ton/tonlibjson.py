@@ -213,7 +213,7 @@ class TonLib:
     # tasks
     async def read_results(self):
         timeout = self.default_timeout or 1
-        receive_func = functools.partial(self.receive, timeout)
+        receive_func = functools.partial(self.receive, 0.1)
         try:
             while self._is_working and not self._is_closing:
                 # return reading result
