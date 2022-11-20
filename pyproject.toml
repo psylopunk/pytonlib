@@ -16,7 +16,7 @@ classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
 ]
-keywords = ["ton", "the open network", "pytonlib"]
+keywords = ["ton", "blockchain", "pytonlib"]
 
 [tool.setuptools.package-data]
 ton = [
