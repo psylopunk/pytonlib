@@ -1,0 +1,38 @@
+[tool.poetry]
+name = "ton"
+version = "0.26.0"
+description = "Python client for The Open Network"
+readme = "README.md"
+authors = [
+    "psylopunk <psylopunk@protonmail.com>",
+]
+maintainers = []
+repository = "https://github.com/psylopunk/pytonlib"
+homepage = "https://pydocs.xton.me"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+]
+keywords = ["ton", "blockchain", "pytonlib"]
+
+[tool.setuptools.package-data]
+ton = [
+    "distlib/linux/*",
+    "distlib/darwin/*",
+    "distlib/windows/*",
+    "distlib/freebsd/*",
+]
+
+[tool.poetry.dependencies]
+python = ">=3.7,<4.0"
+crc16 = "^0.1.1"
+requests = "^2.28.1"
+tonsdk = "^1.0.9"
+pynacl = "^1.5.0"
+
+[build-system]
+requires = ["poetry>=1.2.0"]
+build-backend = "poetry.core.masonry.api"

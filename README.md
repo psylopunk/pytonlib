@@ -23,7 +23,7 @@ If you have an _illegal instruction_ error then you need to build libtonlibjson 
 
 ```bash
 git clone https://github.com/psylopunk/ton && cd ton
-chmod +x build_tonlib.sh && ./build_tonlib.sh # docker is needed
+&& ./build_tonlib.sh  # docker is needed
 ```
 
 #### Getting started
