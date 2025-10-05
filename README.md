@@ -22,7 +22,7 @@ pip install ton
 If you have an _illegal instruction_ error then you need to build libtonlibjson by yourself:
 
 ```bash
-git clone https://github.com/psylopunk/ton && cd ton
+git clone https://github.com/psylopunk/pytonlib && cd pytonlib
 && ./build_tonlib.sh  # docker is needed
 ```
 
